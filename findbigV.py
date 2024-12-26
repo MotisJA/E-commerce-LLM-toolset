@@ -51,7 +51,7 @@ def find_bigV(flower: str):
 def generate_default_response(keyword):
     """生成默认的返回数据"""
     return json.dumps({
-        "summary": f"抱歉，我们暂时无法找到与"{keyword}"相关的专家信息。",
+        "summary": f"抱歉，我们暂时无法找到与\"{keyword}\"相关的专家信息。",
         "facts": [
             "暂无相关信息",
             "您可以尝试使用其他相关关键词"
@@ -61,7 +61,7 @@ def generate_default_response(keyword):
             "或者稍后再来尝试"
         ],
         "letter": [
-            f"很抱歉，我们当前未能找到与"{keyword}"相关的专家信息。建议您可以：\n1. 使用更具体的关键词\n2. 尝试相关领域的其他关键词\n3. 稍后再来尝试"
+            f"很抱歉，我们当前未能找到与\"{keyword}\"相关的专家信息。建议您可以：\n1. 使用更具体的关键词\n2. 尝试相关领域的其他关键词\n3. 稍后再来尝试"
         ]
     })
 
