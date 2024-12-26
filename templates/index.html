@@ -1,56 +1,120 @@
-<!-- templates/index.html -->
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI智能人脉助手</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script src="https://lf3-static.bytednsdoc.com/obj/eden-cn/veh7vhpeps/jquery-3.6.0.min.js?x-resource-account=public"></script>
-    <title>人脉工具</title>
-    <link rel="stylesheet" href="https://lf3-static.bytednsdoc.com/obj/eden-cn/veh7vhpeps/all.min.css?x-resource-account=public" />
-    <div class="spinner-container" id="spinner-container" style="display: none;">
-        <i id="loading-spinner" class="fas fa-spinner fa-spin"></i>
-    </div>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://lf3-static.bytednsdoc.com/obj/eden-cn/veh7vhpeps/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>易速鲜花人脉工具</h1>
-        <form id="name-form">
-            <input type="text" id="flower" name="flower" placeholder="输入一种花（或者其它东西也行）">
-            <button id="magic-button" type="submit">找到大V</button>
-        </form>
-        <div id="result">
-            <img id="profile-pic" src="" alt="Profile Picture" style="display: none; max-width: 100%; height: auto; border-radius: 50%; margin-bottom: 20px;">
-            <h2>基本情况</h2>
-            <p id="summary"></p>
-            <h2>特色内容</h2>
-            <div id="facts"></div>
-            <h2>可能感兴趣的事儿</h2>
-            <div id="interest"></div>
-            <h2>联络邮件</h2>
-            <div id="letter"></div>
+    <div class="app-container">
+        <nav class="top-nav">
+            <div class="nav-content">
+                <div class="logo">
+                    <i class="fas fa-network-wired"></i>
+                    <span>AI智能人脉助手</span>
+                </div>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="search-section">
+                <h1>发现您的理想商业伙伴</h1>
+                <p class="subtitle">输入关键词，AI助手帮您寻找最匹配的行业专家</p>
+                
+                <form id="name-form" class="search-form">
+                    <div class="input-group">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="flower" name="flower" 
+                               placeholder="输入关键词（如：鲜花、科技、教育等）">
+                        <button id="magic-button" type="submit">
+                            <i class="fas fa-magic"></i>
+                            开始匹配
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="result" class="result-section" style="display:none">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <img id="profile-pic" src="" alt="Profile Picture">
+                        <span class="verified-badge">
+                            <i class="fas fa-check-circle"></i>
+                            已认证专家
+                        </span>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="card-header">
+                                <i class="fas fa-user-circle"></i>
+                                <h2>基本情况</h2>
+                            </div>
+                            <div id="summary" class="card-content"></div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="card-header">
+                                <i class="fas fa-star"></i>
+                                <h2>特色内容</h2>
+                            </div>
+                            <div id="facts" class="card-content"></div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="card-header">
+                                <i class="fas fa-lightbulb"></i>
+                                <h2>共同话题</h2>
+                            </div>
+                            <div id="interest" class="card-content"></div>
+                        </div>
+
+                        <div class="info-card full-width">
+                            <div class="card-header">
+                                <i class="fas fa-envelope"></i>
+                                <h2>推荐邮件模板</h2>
+                            </div>
+                            <div id="letter" class="card-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="loading-overlay" id="spinner-container" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>正在匹配最佳专家...</span>
         </div>
     </div>
+
     <script>
         $(document).ready(function () {
             $('#name-form').on('submit', function (e) {
                 e.preventDefault();
                 $('#spinner-container').show();
+                $('#result').hide();
+                
                 $.ajax({
                     url: '/process',
                     data: $('#name-form').serialize(),
                     type: 'POST',
                     success: function (response) {
                         $('#profile-pic').attr('src', 'https://media.licdn.com/dms/image/C5603AQFNBlle-yAc5g/profile-displayphoto-shrink_800_800/0/1517403045625?e=1702512000&v=beta&t=klKCelFxssjEw0Y1_3bmzP9YLy8yGijKz9_P16lGy5w'); 
-                        $('#profile-pic').show(); 
                         $('#summary').text(response.summary);
                         $('#facts').html('<ul>' + response.facts.map(fact => '<li>' + fact + '</li>').join('') + '</ul>');
                         $('#interest').html('<ul>' + response.interest.map(interest => '<li>' + interest + '</li>').join('') + '</ul>');
-                        $('#letter').text(response.letter);
+                        $('#letter').text(response.letter[0]); // 注意这里修改为访问letter数组的第一个元素
+                        $('#result').fadeIn();
                     },
                     error: function (error) {
                         console.log(error);
+                        alert('获取数据失败，请稍后重试');
                     },
                     complete: function () {
                         $('#spinner-container').hide();
