@@ -1,39 +1,56 @@
 import sqlite3
 from datetime import datetime
 import json
+import os
 
 class InventoryDB:
     def __init__(self, db_path="data/inventory.db"):
+        # 确保目录存在
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
         self.db_path = db_path
         self._init_db()
     
     def _init_db(self):
         """初始化数据库表"""
         with sqlite3.connect(self.db_path) as conn:
+            # 删除旧表
+            conn.execute("DROP TABLE IF EXISTS inventory_records")
+            
+            # 创建新表，添加字段长度限制
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS inventory_records (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    timestamp TEXT NOT NULL,
-                    product TEXT NOT NULL,
-                    factors TEXT,
-                    strategy TEXT,
-                    logistics TEXT
+                    timestamp TEXT NOT NULL CHECK(length(timestamp) <= 50),
+                    product TEXT NOT NULL CHECK(length(product) <= 100),
+                    factors TEXT NOT NULL CHECK(length(factors) <= 1000),
+                    strategy TEXT NOT NULL CHECK(length(strategy) <= 500),
+                    logistics TEXT NOT NULL CHECK(length(logistics) <= 500)
                 )
+            """)
+            
+            # 创建索引优化查询
+            conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_product 
+                ON inventory_records(product)
+            """)
+            conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_timestamp 
+                ON inventory_records(timestamp)
             """)
     
     def add_record(self, record_data: dict):
-        """添加新记录"""
+        """添加新记录，确保字段名匹配"""
         with sqlite3.connect(self.db_path) as conn:
             conn.execute("""
                 INSERT INTO inventory_records 
                 (timestamp, product, factors, strategy, logistics)
                 VALUES (?, ?, ?, ?, ?)
             """, (
-                datetime.now().isoformat(),
+                record_data.get("timestamp", datetime.now().isoformat()),
                 record_data["product"],
-                json.dumps(record_data["factors"], ensure_ascii=False),
-                json.dumps(record_data["strategy"], ensure_ascii=False),
-                json.dumps(record_data["logistics"], ensure_ascii=False)
+                json.dumps(record_data.get("factors", {}), ensure_ascii=False),
+                record_data.get("strategy", ""),
+                record_data.get("logistics", "默认物流方案")
             ))
     
     def add_records(self, records: list):
@@ -41,11 +58,11 @@ class InventoryDB:
         with sqlite3.connect(self.db_path) as conn:
             data_to_insert = [
                 (
-                    datetime.now().isoformat(),
+                    record.get("timestamp", datetime.now().isoformat()),
                     record["product"],
-                    json.dumps(record["factors"], ensure_ascii=False),
-                    json.dumps(record["strategy"], ensure_ascii=False),
-                    json.dumps(record["logistics"], ensure_ascii=False)
+                    json.dumps(record.get("factors", {}), ensure_ascii=False),
+                    record.get("strategy", ""),
+                    record.get("logistics", "")
                 )
                 for record in records
             ]
@@ -71,8 +88,8 @@ class InventoryDB:
                     "timestamp": row[1],
                     "product": row[2],
                     "factors": json.loads(row[3]),
-                    "strategy": json.loads(row[4]),
-                    "logistics": json.loads(row[5])
+                    "strategy": row[4],
+                    "logistics": row[5]
                 })
             return records
     
@@ -93,7 +110,7 @@ class InventoryDB:
                     "timestamp": row[1],
                     "product": row[2],
                     "factors": json.loads(row[3]),
-                    "strategy": json.loads(row[4]),
-                    "logistics": json.loads(row[5])
+                    "strategy": row[4],
+                    "logistics": row[5]
                 })
             return records

@@ -10,21 +10,33 @@ import os
 
 
 # 通过LangChain代理找到UID的函数
-def lookup_V(flower_type: str):
+def lookup_V(category: str):
     # 初始化大模型
     llm = ChatOpenAI(
         model=os.environ["LLM_MODELEND"],
-        temperature=0,
+        temperature=0.7,  # 提高温度增加多样性
     )
 
-    # 寻找UID的模板
-    template = """given the {flower} I want you to get a related 微博 UID.
-                  Your answer should contain only a UID.
-                  The URL always starts with https://weibo.com/u/
-                  for example, if https://weibo.com/u/1669879400 is her 微博, then 1669879400 is her UID
-                  This is only the example don't give me this, but the actual UID"""
-    # 完整的提示模板/
-    prompt_template = PromptTemplate(input_variables=["flower"], template=template)
+    # 优化搜索提示模板
+    template = """请帮我找到在{category}领域最有影响力的微博KOL或大V。
+    
+    重点关注以下特征：
+    1. 粉丝量10万以上
+    2. 有明确的{category}领域专业背景
+    3. 有稳定的带货转化能力
+    4. 内容质量高、互动活跃
+    5. 有品牌合作案例
+    
+    从以下来源搜索：
+    1. 微博热门博主
+    2. {category}话题下的活跃作者
+    3. 带货榜单达人
+    4. 行业意见领袖
+    
+    仅返回找到的最佳匹配KOL的微博UID数字（从URL https://weibo.com/u/[UID] 中提取）。
+    """
+    # 确保所有category参数命名统一
+    prompt_template = PromptTemplate(input_variables=["category"], template=template)
 
     # 代理的工具
     tools = [
@@ -41,6 +53,6 @@ def lookup_V(flower_type: str):
     )
 
     # 返回找到的UID
-    ID = agent.run(prompt_template.format_prompt(flower=flower_type))
+    ID = agent.run(prompt_template.format_prompt(category=category))
 
     return ID

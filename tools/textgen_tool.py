@@ -11,13 +11,40 @@ def generate_letter(information):
     parser = PydanticOutputParser(pydantic_object=TextParsing)
     
     letter_template = """
-         下面是这个人的微博信息 {information}
-         请你帮我:
-         1. 写一个简单的总结
-         2. 挑两件有趣的特点说一说
-         3. 找一些他比较感兴趣的事情
-         4. 写一篇热情洋溢的介绍信
-         \n{format_instructions}"""
+    分析以下电商KOL的信息: {information}
+    
+    请你作为商务拓展专家：
+    1. 基本情况分析
+       - 总结其专业背景和影响力
+       - 分析粉丝规模和质量
+       - 评估商业信誉
+       - 总结过往合作案例
+    
+    2. 特色亮点提炼
+       - 专业领域优势
+       - 粉丝群体特点
+       - 内容创作特色
+       - 带货能力分析
+       
+    3. 潜在合作机会
+       - 可以对接的业务方向
+       - 共同的市场机会
+       - 可以深度合作的领域
+       - 双方的协同优势
+       
+    4. 商务合作邮件
+       - 突出合作诚意
+       - 强调共同价值
+       - 提供明确合作方案
+       - 凸显双赢前景
+    
+    要求：
+    - 内容具体详实
+    - 数据客观准确
+    - 表达专业得体
+    - 重点突出价值
+    
+    \n{format_instructions}"""
 
     prompt = PromptTemplate(
         input_variables=["information"],

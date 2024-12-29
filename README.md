@@ -7,7 +7,7 @@
 - 大V搜索与分析
 - 智能营销方案生成
 - 库存管理与优化
-- 客服聊天支持
+- RAG客服聊天支持
 
 ## 环境要求
 
@@ -16,13 +16,7 @@
 
 ## 安装步骤
 
-1. 克隆仓库
-```bash
-git clone [repository-url]
-cd BiProj
-```
-
-2. 创建并激活虚拟环境
+创建并激活虚拟环境
 ```bash
 python -m venv venv
 # Windows
@@ -31,12 +25,12 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
-3. 安装依赖
+安装依赖
 ```bash
 pip install -r requirements.txt
 ```
 
-4. 配置环境变量
+配置环境变量
 复制 `.env.example` 文件为 `.env`，并填入必要的配置：
 ```
 SERPAPI_API_KEY=your_serp_api_key

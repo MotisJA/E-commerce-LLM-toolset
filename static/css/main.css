@@ -1,0 +1,378 @@
+/* 基础变量和重置样式 */
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #3b82f6;
+    --background-color: #f8fafc;
+    --text-color: #1e293b;
+    --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --transition: all 0.3s ease;
+}
+
+/* 基础布局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* 布局组件 */
+.layout {
+    /* ...existing layout styles... */
+}
+
+/* 导航栏样式 */
+.top-nav {
+    background: white;
+    box-shadow: var(--card-shadow);
+    padding: 1rem 2rem;
+}
+
+.nav-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* 内容区域样式 */
+.main-content {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* 搜索区域样式 */
+.search-section {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+/* 表单样式 */
+.input-group {
+    position: relative;
+    display: flex;
+    gap: 1rem;
+}
+
+.input-group input, .input-group textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.5rem;
+}
+
+.input-group button {
+    background: var(--primary-color);
+    color: white;
+    padding: 0 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+}
+
+/* 通用组件 */
+.button {
+    /* 统一按钮样式 */
+}
+
+.input {
+    /* 统一输入框样式 */
+}
+
+.card {
+    /* 统一卡片样式 */
+}
+
+/* 标签页样式 */
+.tab-nav {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+}
+
+.tab-btn {
+    padding: 0.5rem 1.5rem;
+    border: none;
+    background: none;
+    color: #64748b;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: var(--transition);
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+/* 结果展示区域样式 */
+.result-section {
+    margin-top: 2rem;
+    animation: fadeIn 0.5s ease;
+}
+
+.profile-card {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    padding: 2rem;
+}
+
+/* 聊天窗口样式 */
+.chat-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    height: 400px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+/* 聊天面板样式 */
+.chatbot-input {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.chatbot-input textarea {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    resize: none;
+    height: 60px;
+}
+
+/* 对话样式 */
+.message-content {
+    margin: 10px;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.user-message {
+    background: var(--primary-color);
+    color: white;
+    margin-left: auto;
+}
+
+.bot-message {
+    background: #f0f0f0;
+    color: var(--text-color);
+}
+
+.error-message {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* 模块样式 */
+.recruitment {
+    /* 招商模块样式 */
+}
+
+.marketing {
+    /* 营销模块样式 */
+}
+
+.inventory {
+    /* 库存模块样式 */
+}
+
+.chatbot {
+    /* 聊天模块样式 */
+}
+
+/* 智能客服面板样式 */
+.chatbot-section {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.chat-panel {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+/* 优化营销方案样式 */
+.marketing-plan-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-top: 2rem;
+}
+
+/* 优化库存分析样式 */
+.inventory-analysis-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+}
+
+/* 标签页样式 */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* 加载动画样式 */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* 营销方案样式 */
+.marketing-form {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* 库存管理样式 */
+.inventory-form {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .input-group {
+        flex-direction: column;
+    }
+    
+    .search-section h1 {
+        font-size: 2rem;
+    }
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 错误提示样式 */
+.error-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #fee2e2;
+    color: #dc2626;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: var(--card-shadow);
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+/* 工具类 */
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.minimized {
+    height: 60px;
+}
+
+.minimized .chat-messages,
+.minimized .chat-input {
+    display: none;
+}
+
+/* 表格和列表样式 */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.factors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+/* 其他组件样式 */
+.verified-badge {
+    color: var(--primary-color);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dialogue-content {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* 添加缺失的关键样式 */
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}

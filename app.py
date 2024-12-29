@@ -3,11 +3,12 @@ from findbigV import find_bigV
 from chatbot import ChatbotWithRetrieval
 import json
 from agents.marketing_agent import MarketingAgent
-from agents.inventory_agent import InventoryAgent
-from tools.inventory_tools import InventoryTools
+from agents.inventory_agent import InventoryAGI
+from flask_cors import CORS
 
 # 实例化Flask应用
 app = Flask(__name__)
+CORS(app)  # 启用跨域支持
 
 # 初始化聊天机器人
 bot = ChatbotWithRetrieval("docs")
@@ -15,9 +16,8 @@ bot = ChatbotWithRetrieval("docs")
 # 初始化营销助手
 marketing_agent = MarketingAgent()
 
-# 初始化库存管理代理和工具
-inventory_agent = InventoryAgent()
-inventory_tools = InventoryTools()
+# 使用工厂方法初始化库存代理
+inventory_agi = InventoryAGI.create_default_agent()
 
 # 主页路由，返回index.html模板
 @app.route("/")
@@ -29,32 +29,21 @@ def index():
 @app.route("/process", methods=["POST"])
 def process():
     try:
-        # 获取提交的花的名称
-        flower = request.form["flower"]
-        if not flower:
-            raise ValueError("关键词不能为空")
+        category = request.form["category"]  # 使用新的参数名
+        if not category:
+            return jsonify({"error": "类目不能为空"}), 400
             
-        # 使用find_bigV函数获取相关数据
-        response_str = find_bigV(flower=flower)
-        # 使用json.loads将字符串解析为字典
+        response_str = find_bigV(category=category)
         response = json.loads(response_str)
 
-        # 返回数据的json响应
-        return jsonify({
-            "summary": response["summary"],
-            "facts": response["facts"],
-            "interest": response["interest"],
-            "letter": response["letter"],
-        })
+        return jsonify(response)
         
     except Exception as e:
         print(f"Error in process: {str(e)}")
         return jsonify({
-            "summary": "抱歉，服务器处理请求时出现错误",
-            "facts": ["请检查输入是否正确", "稍后再试"],
-            "interest": ["系统正在维护中", "请稍后再来"],
-            "letter": ["非常抱歉，系统暂时无法处理您的请求。请稍后再试。"]
-        }), 200  # 返回200而不是500，确保前端能正常处理
+            "error": "服务器处理请求时出现错误",
+            "details": str(e)
+        }), 500
 
 
 # 添加客服聊天接口
@@ -84,17 +73,23 @@ def generate_marketing_plan():
         if not all([product, target, goal]):
             return jsonify({"error": "缺少必要参数"}), 400
             
-        plan = marketing_agent.generate_marketing_plan(
+        # 生成营销方案 - CAMEL框架会返回对话式的营销方案
+        result = marketing_agent.generate_marketing_plan(
             product=product,
             target=target,
             goal=goal
         )
         
-        return jsonify({"plan": plan})
+        # 直接返回结构化的对话数据
+        return jsonify(result)
         
     except Exception as e:
         print(f"Error in generate_marketing_plan: {str(e)}")
-        return jsonify({"error": "生成营销方案时出现错误"}), 500
+        return jsonify({
+            "status": "error",
+            "error": str(e),
+            "conversation": []
+        }), 500
 
 @app.route("/marketing/refine", methods=["POST"])
 def refine_marketing_plan():
@@ -106,16 +101,22 @@ def refine_marketing_plan():
         if not all([initial_plan, feedback]):
             return jsonify({"error": "缺少必要参数"}), 400
             
-        refined_plan = marketing_agent.refine_plan(
+        # 优化营销方案
+        result = marketing_agent.refine_plan(
             initial_plan=initial_plan,
             feedback=feedback
         )
         
-        return jsonify({"plan": refined_plan})
+        # 直接返回结构化的对话数据
+        return jsonify(result)
         
     except Exception as e:
         print(f"Error in refine_marketing_plan: {str(e)}")
-        return jsonify({"error": "优化营销方案时出现错误"}), 500
+        return jsonify({
+            "status": "error",
+            "error": str(e),
+            "conversation": []
+        }), 500
 
 
 @app.route("/inventory/analyze", methods=["POST"])
@@ -123,43 +124,69 @@ def analyze_inventory():
     try:
         data = request.json
         product = data.get("product")
-        current_stock = data.get("current_stock")
+        city = data.get("city", "全国")  # 添加城市参数，默认为"全国"
         
-        if not all([product, current_stock]):
+        if not product:
             return jsonify({"error": "缺少必要参数"}), 400
             
-        # 获取影响因素
-        factors = inventory_agent.analyze_factors(product)
-        
-        # 生成库存策略
-        strategy = inventory_agent.generate_inventory_strategy(
+        # 使用AGI执行完整的库存分析策略，传入城市参数
+        result = inventory_agi.execute_strategy(
             product=product,
-            factors=factors,
-            current_stock=current_stock
+            city=city
         )
         
-        # 优化物流方案
-        logistics = inventory_agent.optimize_logistics(strategy)
-        
-        # 更新历史记录
-        inventory_agent.update_inventory_history({
-            "product": product,
-            "factors": factors,
-            "strategy": strategy,
-            "logistics": logistics
-        })
-        
+        if not result:
+            return jsonify({"error": "策略执行失败"}), 500
+            
+        # 确保返回结构化数据
         return jsonify({
-            "factors": factors,
-            "strategy": strategy,
-            "logistics": logistics
+            "factors": {
+                "weather_impact": result.get("weather_impact", {}),
+                "social_trends": result.get("social_trends", {}),
+                "seasonal_events": result.get("seasonal_events", [])
+            },
+            "strategy": result.get("strategy", {}),
+            "logistics": result.get("logistics", {}),
+            "status": "success"
         })
         
     except Exception as e:
         print(f"Error in analyze_inventory: {str(e)}")
-        return jsonify({"error": "分析库存时出现错误"}), 500
+        return jsonify({
+            "error": "分析库存时出现错误",
+            "factors": {
+                "weather_impact": {},
+                "social_trends": {},
+                "seasonal_events": []
+            },
+            "strategy": {},
+            "logistics": {}
+        }), 200  # 返回200以确保前端能处理错误
+
+
+# 添加全局错误处理
+@app.errorhandler(Exception)
+def handle_error(error):
+    logger.error(f"应用错误: {str(error)}", exc_info=True)
+    return jsonify({
+        "error": "服务器内部错误",
+        "message": str(error)
+    }), 500
+
+# 添加路由前的预处理
+@app.before_request
+def before_request():
+    # 检查API密钥(如果需要)
+    if request.path.startswith('/api/'):
+        api_key = request.headers.get('X-API-Key')
+        if not api_key:
+            return jsonify({"error": "缺少API密钥"}), 401
 
 
 # 判断是否是主程序运行，并设置Flask应用的host和debug模式
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    app.run(
+        host="127.0.0.1",  # 修改为本地主机
+        port=5000,         # 指定端口
+        debug=True
+    )
